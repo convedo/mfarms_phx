@@ -29,30 +29,32 @@ defmodule MfarmsWeb.ChatLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <.header>
-      Chat
-      <:subtitle>Only for demo purposes</:subtitle>
-    </.header>
-    <div id="messages" phx-update="stream">
-      <div :for={{_id, message} <- @streams.messages}>
-        <div class="grid grid-cols-1 gap-4">
-          <div :if={message.role == "user"} class="flex justify-end mb">
-            <div class="bg-slate-100 rounded-lg p-3 max-w-xs">
-              <%= message.text %>
+    <div class="py-4 px-8 bg-white rounded shadow-sm">
+      <.header>
+        Chat
+        <:subtitle>Only for demo purposes</:subtitle>
+      </.header>
+      <div id="messages" phx-update="stream">
+        <div :for={{_id, message} <- @streams.messages}>
+          <div class="grid grid-cols-1 gap-4">
+            <div :if={message.role == "user"} class="flex justify-end mb">
+              <div class="bg-slate-100 rounded-lg p-3 max-w-xs">
+                <%= message.text %>
+              </div>
             </div>
-          </div>
-          <div :if={message.role == "system"} class="flex justify-start mb-2">
-            <div class="bg-blue-100 rounded-lg p-3 max-w-xs">
-              <%= message.text %>
+            <div :if={message.role == "system"} class="flex justify-start mb-2">
+              <div class="bg-blue-100 rounded-lg p-3 max-w-xs">
+                <%= message.text %>
+              </div>
             </div>
           </div>
         </div>
       </div>
+      <.form for={@message_form} phx-submit="submit" phx-change="change">
+        <.input field={@message_form[:text]} name="text" type="textarea" placeholder="Type a message" />
+        <.button class="mt-2" type="submit">Send</.button>
+      </.form>
     </div>
-    <.form for={@message_form} phx-submit="submit" phx-change="change">
-      <.input field={@message_form[:text]} name="text" type="textarea" placeholder="Type a message" />
-      <.button class="mt-2" type="submit">Send</.button>
-    </.form>
     """
   end
 

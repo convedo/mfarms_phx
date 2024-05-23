@@ -1,36 +1,7 @@
-<header class="py-2">
-  <a href="/">
-    <p class="text-2xl font-bold tracking-tighter text-slate-950">M'Farms Plus</p>
-  </a>
-</header>
 <main class="py-20">
-  <section class="max-w-2xl text-wrap">
-    <h1 class="text-5xl font-bold tracking-tighter mb-4">
-      We connect farmers with international markets
-    </h1>
-    <p class="text-lg text-slate-950 mb-4">
-      We provide a platform for farmers to easily connect with international markets. Use our chat feature to list your produce or register as a buyer and have access to a huge market of locally grown produce.
-    </p>
-    <div>
-      <a href="https://t.me/mfarms_plus_bot" target="_blank">
-        <.button>
-          <div class="flex items-center gap-2">
-            <.icon name="hero-paper-airplane-solid" class="w-4 h-4" />Telegram
-          </div>
-        </.button>
-      </a>
-      <a href={~p"/chat"}>
-        <.button>
-          <div class="flex items-center gap-2">
-            <.icon name="hero-chat-bubble-left-solid" class="w-4 h-4" />Browser Chat
-          </div>
-        </.button>
-      </a>
-    </div>
-  </section>
   <section class="mt-6">
     <.flash_group flash={@flash} />
-    <div class="py-4 px-8 bg-white rounded shadow-sm">
+    <div>
       <%= @inner_content %>
     </div>
   </section>
