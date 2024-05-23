@@ -6,11 +6,11 @@ defmodule Mfarms.Chat.PromptModel.Listing do
   A listing is a product that is being sold.
 
   ## Fields
-  - name: A string that contains the name of the listing
-  - price: A float that contains the price of the product
-  - currency: A string that contains the currency of the price of the product
-  - quantity: An integer that contains the quantity of the product
-  - unit: Optional string that contains the unit of the product. Only needed if product is not sold in pieces
+  - name: The name of the product or produce being sold extracted from the chat.
+  - price: A float that contains the price of the product extracted from the chat.
+  - currency: A string that contains the currency of the price of the product extracted from the chat.
+  - quantity: An integer that contains the quantity of the product extracted from the chat.
+  - unit: Optional string that contains the unit of the product extracted from the chat. Only needed if product is not sold in pieces
   """
 
   @primary_key false
@@ -20,5 +20,11 @@ defmodule Mfarms.Chat.PromptModel.Listing do
     field(:currency, :string)
     field(:quantity, :integer)
     field(:unit, :string)
+  end
+
+  @impl true
+  def validate_changeset(changeset) do
+    changeset
+    |> Ecto.Changeset.validate_required([:name, :price, :currency, :quantity])
   end
 end

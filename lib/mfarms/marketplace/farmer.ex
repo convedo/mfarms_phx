@@ -12,4 +12,24 @@ defmodule Mfarms.Marketplace.Farmer do
     timestamps()
     has_many(:listings, Mfarms.Marketplace.Listing)
   end
+
+  def changeset(farmer, attrs) do
+    farmer
+    |> Ecto.Changeset.cast(attrs, [
+      :first_name,
+      :last_name,
+      :phone_number,
+      :location,
+      :chat_id,
+      :contact_type
+    ])
+    |> Ecto.Changeset.validate_required([
+      :first_name,
+      :last_name,
+      :phone_number,
+      :location,
+      :chat_id,
+      :contact_type
+    ])
+  end
 end

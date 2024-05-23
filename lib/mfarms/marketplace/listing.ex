@@ -6,9 +6,15 @@ defmodule Mfarms.Marketplace.Listing do
     field(:price, :float)
     field(:currency, :string)
     field(:quantity, :integer)
-    field(:unit, :string)
+    field(:unit, :string, default: "pcs")
 
     timestamps()
     belongs_to(:farmer, Mfarms.Marketplace.Farmer)
+  end
+
+  def changeset(listing, attrs) do
+    listing
+    |> Ecto.Changeset.cast(attrs, [:name, :price, :currency, :quantity, :unit, :farmer_id])
+    |> Ecto.Changeset.validate_required([:name, :price, :currency, :quantity, :farmer_id])
   end
 end

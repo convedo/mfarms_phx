@@ -5,10 +5,10 @@ defmodule Mfarms.Chat.PromptModel.Farmer do
   @doc """
   A farmer is a user that is selling products.
   ## Fields
-  - first_name: A string that contains the first name of the farmer provided by the user and extracted from the message - otherwise leave null
-  - last_name: A string that contains the last name of the farmer provided by the user and extracted from the message - otherwise leave null
-  - phone_number: A string that contains the phone number of the farmer provided by the user and extracted from the message - otherwise leave null
-  - location: A string that contains the location of the farmer provided by the user and extracted from the message - otherwise leave null
+  - first_name: First name of the farmer extracted from the chat. If not found put null
+  - last_name: Last name of the farmer extracted from the chat. If not found put null
+  - phone_number: Phone number of the farmer extracted from the chat. If not found put null
+  - location: Location of the farmer extracted from the chat. If not found put null
   """
   @primary_key false
   embedded_schema do

@@ -21,4 +21,22 @@ defmodule Mfarms.Marketplace do
   def get_farmer_by_chat_id(chat_id) do
     Repo.get_by(Mfarms.Marketplace.Farmer, chat_id: chat_id)
   end
+
+  def create_farmer(attrs) do
+    %Mfarms.Marketplace.Farmer{}
+    |> Mfarms.Marketplace.Farmer.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  def create_listing(attrs) do
+    %Listing{}
+    |> Listing.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  def get_listing(id) do
+    Listing
+    |> preload(:farmer)
+    |> Repo.get(id)
+  end
 end

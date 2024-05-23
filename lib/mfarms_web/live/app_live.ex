@@ -1,4 +1,5 @@
 defmodule MfarmsWeb.AppLive do
+  alias Phoenix.PubSub
   use MfarmsWeb, :live_view
 
   alias Mfarms.Marketplace
@@ -6,7 +7,7 @@ defmodule MfarmsWeb.AppLive do
   @impl true
   def mount(_params, _session, socket) do
     listings = Marketplace.list_listings()
-
+    PubSub.subscribe(Mfarms.PubSub, "listings")
     {:ok, stream(socket, :listings, listings)}
   end
 
@@ -25,5 +26,11 @@ defmodule MfarmsWeb.AppLive do
       <:col :let={{_id, listing}} label="Listed Since"><%= "#{listing.inserted_at}" %></:col>
     </.table>
     """
+  end
+
+  @impl true
+  def handle_info({:new_listing, listing_id}, socket) do
+    listing = Marketplace.get_listing(listing_id)
+    {:noreply, stream(socket, :listings, [listing], at: 0)}
   end
 end

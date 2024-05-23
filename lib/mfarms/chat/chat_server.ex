@@ -1,4 +1,5 @@
 defmodule Mfarms.Chat.ChatServer do
+  alias Phoenix.PubSub
   use GenServer
   require Logger
 
@@ -19,8 +20,6 @@ defmodule Mfarms.Chat.ChatServer do
   end
 
   # Server callbacks
-  @spec init(%{:chat_id => any(), optional(any()) => any()}) ::
-          {:ok, %{:chat_id => any(), :farmer => any(), optional(any()) => any()}}
   def init(state) do
     case Mfarms.Marketplace.get_farmer_by_chat_id(state.chat_id) do
       nil -> {:ok, Map.put(state, :farmer, nil)}
@@ -72,7 +71,17 @@ defmodule Mfarms.Chat.ChatServer do
       IO.inspect(gpt_response, label: "Farmer")
 
       case gpt_response do
-        {:ok, _} ->
+        {:ok, farmer} ->
+          {:ok, farmer} =
+            Mfarms.Marketplace.create_farmer(%{
+              chat_id: state.chat_id,
+              contact_type: state.contact_type,
+              first_name: farmer.first_name,
+              last_name: farmer.last_name,
+              phone_number: farmer.phone_number,
+              location: farmer.location
+            })
+
           response_success = """
           Thank you for registration. You can now use the chat bot to
             - create listings on the marketplace
@@ -81,7 +90,9 @@ defmodule Mfarms.Chat.ChatServer do
             - get the latest subsidy information
           """
 
-          send_message(state, response_success)
+          state
+          |> Map.put(:farmer, farmer)
+          |> send_message(response_success)
 
         {:error, _} ->
           send_message(
@@ -90,6 +101,80 @@ defmodule Mfarms.Chat.ChatServer do
           )
       end
     end
+  end
+
+  defp respond(state) do
+    intention = get_intention_of_message(state)
+
+    state =
+      if intention.new_conversation do
+        # only keep the most recent one
+        Map.put(state, :messages, [Enum.at(state.messages, 0)])
+      else
+        state
+      end
+
+    IO.inspect(state, label: "State after intention")
+    respond(intention.topic, state)
+  end
+
+  defp respond(:place_listing, state) do
+    gpt_response =
+      instruct_chat_gpt(
+        "Ensure that the user has provided all information to create a listing and extract the details of the listing.",
+        state.messages,
+        Mfarms.Chat.PromptModel.Listing
+      )
+
+    case gpt_response do
+      {:ok, listing} ->
+        {:ok, listing} =
+          Mfarms.Marketplace.create_listing(%{
+            name: listing.name,
+            price: listing.price,
+            quantity: listing.quantity,
+            currency: listing.currency,
+            unit: listing.unit,
+            farmer_id: state.farmer.id
+          })
+
+        PubSub.broadcast(Mfarms.PubSub, "listings", {:new_listing, listing.id})
+        send_message(state, "Listing created successfully")
+
+      {:error, _} ->
+        send_message(state, "Please provide the details of the listing")
+    end
+  end
+
+  defp respond(:weather, state) do
+    send_message(state, "It will be sunny today")
+  end
+
+  defp respond(:view_marketprices, state) do
+    send_message(
+      state,
+      """
+      The market prices are as follows:
+      - Tomatoes: $1.50
+      - Cucumbers: $0.75
+      - Potatoes: $0.50
+      """
+    )
+  end
+
+  defp respond(_, state) do
+    send_message(state, "I'm sorry, I don't understand")
+  end
+
+  defp get_intention_of_message(state) do
+    {:ok, intention} =
+      instruct_chat_gpt(
+        "What is the intention of the user?",
+        state.messages,
+        Mfarms.Chat.PromptModel.Intention
+      )
+
+    intention
   end
 
   defp send_message(state, message) do

@@ -36,12 +36,12 @@ defmodule MfarmsWeb.ChatLive do
     <div id="messages" phx-update="stream">
       <div :for={{_id, message} <- @streams.messages}>
         <div class="grid grid-cols-1 gap-4">
-          <div :if={message.role == "user"} class="flex justify-end">
+          <div :if={message.role == "user"} class="flex justify-end mb-2">
             <div class="bg-slate-100 rounded-lg p-3 max-w-xs">
               <%= message.text %>
             </div>
           </div>
-          <div :if={message.role == "system"} class="flex justify-start">
+          <div :if={message.role == "system"} class="flex justify-start mb-2">
             <div class="bg-blue-100 rounded-lg p-3 max-w-xs">
               <%= message.text %>
             </div>
