@@ -37,7 +37,8 @@ defmodule Mfarms.Chat.ChatServer do
       |> add_user_message(message_text)
       |> respond()
 
-    {:noreply, state}
+    tenMinutes = 1000 * 60 * 10
+    {:noreply, state, tenMinutes}
   end
 
   defp via_tuple(chat_id) do
@@ -71,6 +72,8 @@ defmodule Mfarms.Chat.ChatServer do
           state.messages,
           Mfarms.Chat.PromptModel.Farmer
         )
+
+      IO.inspect(gpt_response)
 
       case gpt_response do
         {:ok, farmer} ->
