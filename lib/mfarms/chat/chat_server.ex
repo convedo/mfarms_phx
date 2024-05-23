@@ -8,6 +8,8 @@ defmodule Mfarms.Chat.ChatServer do
   end
 
   def start_link({chat_id, contact_type}) do
+    IO.inspect(chat_id, label: "Chat ID")
+
     GenServer.start_link(
       __MODULE__,
       %State{chat_id: chat_id, contact_type: contact_type},
@@ -20,6 +22,8 @@ defmodule Mfarms.Chat.ChatServer do
   end
 
   # Server callbacks
+  @spec init(%{:chat_id => any(), optional(any()) => any()}) ::
+          {:ok, %{:chat_id => any(), :farmer => any(), optional(any()) => any()}}
   def init(state) do
     case Mfarms.Marketplace.get_farmer_by_chat_id(state.chat_id) do
       nil -> {:ok, Map.put(state, :farmer, nil)}
@@ -68,13 +72,16 @@ defmodule Mfarms.Chat.ChatServer do
           Mfarms.Chat.PromptModel.Farmer
         )
 
-      IO.inspect(gpt_response, label: "Farmer")
-
       case gpt_response do
         {:ok, farmer} ->
+          chat_id =
+            if is_integer(state.chat_id),
+              do: Integer.to_string(state.chat_id),
+              else: state.chat_id
+
           {:ok, farmer} =
             Mfarms.Marketplace.create_farmer(%{
-              chat_id: state.chat_id,
+              chat_id: chat_id,
               contact_type: state.contact_type,
               first_name: farmer.first_name,
               last_name: farmer.last_name,
@@ -114,7 +121,6 @@ defmodule Mfarms.Chat.ChatServer do
         state
       end
 
-    IO.inspect(state, label: "State after intention")
     respond(intention.topic, state)
   end
 
