@@ -52,14 +52,14 @@ defmodule Mfarms.Chat.ChatServer do
   defp respond(%{farmer: nil} = state) do
     if Enum.count(state.messages) == 1 do
       message = """
-        Hello, this is M'Farms Plus. Please register first by providing
-        your first name, last name, phone number, and location."
+      Hello, this is M'Farms Plus. Please register first by providing
+      your first name, last name, phone number, and location."
       """
 
       send_message(state, message)
     else
       instruction = """
-        You are a chat bot. Please ensure that the user has provided all information, to register as a farmer.
+      You are a chat bot. Please ensure that the user has provided all information, to register as a farmer.
       """
 
       gpt_response =
@@ -74,11 +74,11 @@ defmodule Mfarms.Chat.ChatServer do
       case gpt_response do
         {:ok, _} ->
           response_success = """
-            Thank you for registration. You can now use the chat bot to
-             - create listings on the marketplace
-             - get marketprice information
-             - get weather information
-             - get the latest subsidy information
+          Thank you for registration. You can now use the chat bot to
+            - create listings on the marketplace
+            - get marketprice information
+            - get weather information
+            - get the latest subsidy information
           """
 
           send_message(state, response_success)
@@ -93,10 +93,15 @@ defmodule Mfarms.Chat.ChatServer do
   end
 
   defp send_message(state, message) do
-    if(state.contact_type == :telegram) do
-      Telegex.send_message(state.chat_id, message)
-    else
-      Logger.error("Unsupported contact type: #{state.contact_type}")
+    case state.contact_type do
+      :telegram ->
+        Telegex.send_message(state.chat_id, message)
+
+      :internal ->
+        Phoenix.PubSub.broadcast(Mfarms.PubSub, "chat:#{state.chat_id}", {:new_message, message})
+
+      _ ->
+        Logger.error("Unsupported contact type: #{state.contact_type}")
     end
 
     add_assistant_message(state, message)

@@ -17,7 +17,8 @@ defmodule MfarmsWeb.Router do
   scope "/", MfarmsWeb do
     pipe_through :browser
 
-    get "/", PageController, :home
+    live "/", AppLive
+    live "/chat", ChatLive
   end
 
   # Other scopes may use custom stacks.
