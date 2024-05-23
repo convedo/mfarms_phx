@@ -10,6 +10,7 @@ defmodule Mfarms.Marketplace.Listing do
 
     timestamps()
     belongs_to(:farmer, Mfarms.Marketplace.Farmer)
+    belongs_to(:purchased_by_user, Mfarms.Accounts.User)
   end
 
   def changeset(listing, attrs) do

@@ -51,14 +51,49 @@ defmodule MfarmsWeb.AppLive do
         </:col>
         <:col :let={{_id, listing}} label="Price"><%= "#{listing.price} #{listing.currency}" %></:col>
         <:col :let={{_id, listing}} label="Listed Since"><%= "#{listing.inserted_at}" %></:col>
+        <:action :let={{_id, listing}} :if={@current_user}>
+          <%= if listing.purchased_by_user_id == @current_user.id do %>
+            <.button disabled class="bg-green-400">Purchased</.button>
+          <% else %>
+            <.button phx-click="purchase" phx-value-id={listing.id}>Purchase</.button>
+          <% end %>
+        </:action>
       </.table>
     </div>
     """
   end
 
   @impl true
+  def handle_event("purchase", %{"id" => listing_id}, socket) do
+    {:ok, listing} = Marketplace.purchase_listing(listing_id, socket.assigns.current_user.id)
+
+    PubSub.broadcast(
+      Mfarms.PubSub,
+      "listings",
+      {:listing_purchased, listing.id, listing.purchased_by_user_id}
+    )
+
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_info({:new_listing, listing_id}, socket) do
     listing = Marketplace.get_listing(listing_id)
     {:noreply, stream(socket, :listings, [listing], at: 0)}
+  end
+
+  @impl true
+  def handle_info({:listing_purchased, listing_id, user_id}, socket) do
+    if !is_nil(socket.assigns.current_user) && user_id == socket.assigns.current_user.id do
+      listing = Marketplace.get_listing(listing_id)
+
+      socket =
+        socket
+        |> stream_insert(:listings, listing)
+
+      {:noreply, socket}
+    else
+      {:noreply, stream_delete_by_dom_id(socket, :listings, "listings-#{listing_id}")}
+    end
   end
 end

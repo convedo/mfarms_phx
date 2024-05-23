@@ -39,4 +39,10 @@ defmodule Mfarms.Marketplace do
     |> preload(:farmer)
     |> Repo.get(id)
   end
+
+  def purchase_listing(listing_id, user_id) do
+    listing = get_listing(listing_id)
+    listing = Ecto.Changeset.change(listing, purchased_by_user_id: user_id)
+    Repo.update(listing)
+  end
 end
