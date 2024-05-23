@@ -57,7 +57,10 @@ defmodule Mfarms.MixProject do
       {:gettext, "~> 0.20"},
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.1.1"},
-      {:bandit, "~> 1.2"}
+      {:bandit, "~> 1.2"},
+      {:telegex, "~> 1.7.0"},
+      {:multipart, "~> 0.4.0"},
+      {:instructor, "~> 0.0.5"}
     ]
   end
 

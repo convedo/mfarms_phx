@@ -14,6 +14,10 @@ defmodule Mfarms.Application do
       {Phoenix.PubSub, name: Mfarms.PubSub},
       # Start the Finch HTTP client for sending emails
       {Finch, name: Mfarms.Finch},
+      {Registry, keys: :unique, name: ChatRegistry},
+      # Start the DynamicSupervisor for chat servers
+      Mfarms.Chat.ChatSupervisor,
+      Mfarms.PollingHandler,
       # Start a worker by calling: Mfarms.Worker.start_link(arg)
       # {Mfarms.Worker, arg},
       # Start to serve requests, typically the last entry

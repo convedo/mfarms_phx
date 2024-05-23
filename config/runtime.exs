@@ -20,6 +20,12 @@ if System.get_env("PHX_SERVER") do
   config :mfarms, MfarmsWeb.Endpoint, server: true
 end
 
+config :telegex, token: System.get_env("TELEGRAM_BOT_TOKEN")
+
+config :instructor,
+  adapter: Instructor.Adapters.OpenAI,
+  openai: [api_key: System.fetch_env!("OPEN_AI_API_KEY")]
+
 if config_env() == :prod do
   database_url =
     System.get_env("DATABASE_URL") ||
