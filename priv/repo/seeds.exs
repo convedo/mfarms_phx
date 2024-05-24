@@ -10,6 +10,9 @@
 # We recommend using the bang functions (`insert!`, `update!`
 # and so on) as they will fail if something goes wrong.
 
+Mfarms.Marketplace.list_listings()
+|> Enum.each(&Mfarms.Repo.delete(&1))
+
 Mfarms.Repo.insert!(%Mfarms.Marketplace.Farmer{
   first_name: "John",
   last_name: "Doe",

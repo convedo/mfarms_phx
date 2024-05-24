@@ -82,6 +82,9 @@ defmodule MfarmsWeb.AppLive do
         <:col :let={{_id, listing}} label="Seller">
           <%= "#{listing.farmer.first_name} #{listing.farmer.last_name}" %>
         </:col>
+        <:col :let={{_id, listing}} label="Location">
+          <%= "#{listing.farmer.location}" %>
+        </:col>
         <:col :let={{_id, listing}} label="Quantity">
           <%= "#{listing.quantity} #{listing.unit}" %>
         </:col>
