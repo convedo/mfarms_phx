@@ -35,6 +35,7 @@ defmodule MfarmsWeb.AppLive do
       </h1>
       <p class="text-lg text-slate-950 mb-4">
         We provide a platform for farmers to easily connect with larger markets. Use our chat feature to list your produce or register as a buyer and have access to a huge market of locally grown produce.
+        <.link class="font-medium" href={~p"/learn-more"}>Learn more</.link>
       </p>
       <div>
         <a href="https://t.me/mfarms_plus_bot" target="_blank">
@@ -56,7 +57,7 @@ defmodule MfarmsWeb.AppLive do
     <div class="py-4 px-8 bg-white rounded shadow-sm">
       <.header>Marketplace Listings</.header>
       <.form for={@filters_form} phx-change="search">
-        <div class="flex items-center gap-4">
+        <div :if={@current_user} class="flex items-center gap-4">
           <div class="flex-grow" phx-keydown="search">
             <.input
               class="w-64"
@@ -129,8 +130,6 @@ defmodule MfarmsWeb.AppLive do
 
   @impl true
   def handle_event("toggle-basket", _, socket) do
-    IO.inspect("#{socket.assigns.show_basket}")
-
     socket =
       socket
       |> assign(:show_basket, !socket.assigns.show_basket)
@@ -142,14 +141,11 @@ defmodule MfarmsWeb.AppLive do
   defp assign_listings(socket) do
     listings =
       if socket.assigns.show_basket do
-        IO.inspect("Search here")
-
         Marketplace.list_purchased_listings_by_user_id(
           socket.assigns.current_user.id,
           socket.assigns.search_term
         )
       else
-        IO.inspect("Search here 2")
         Marketplace.list_listings_on_offer(socket.assigns.search_term)
       end
 

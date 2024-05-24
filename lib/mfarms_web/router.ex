@@ -20,6 +20,7 @@ defmodule MfarmsWeb.Router do
   scope "/", MfarmsWeb do
     pipe_through :browser
     live "/chat", ChatLive
+    live "/learn-more", LearnMoreLive
   end
 
   # Other scopes may use custom stacks.
