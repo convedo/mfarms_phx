@@ -187,17 +187,7 @@ defmodule Mfarms.Chat.ChatServer do
   end
 
   defp send_message(state, message) do
-    case state.contact_type do
-      :telegram ->
-        Telegex.send_message(state.chat_id, message)
-
-      :internal ->
-        Phoenix.PubSub.broadcast(Mfarms.PubSub, "chat:#{state.chat_id}", {:new_message, message})
-
-      _ ->
-        Logger.error("Unsupported contact type: #{state.contact_type}")
-    end
-
+    Mfarms.Chat.ChatAdapter.send_message(state.chat_id, state.contact_type, message)
     add_assistant_message(state, message)
   end
 

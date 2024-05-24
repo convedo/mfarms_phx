@@ -14,6 +14,14 @@ defmodule Mfarms.Marketplace do
     |> Repo.all()
   end
 
+  def list_listings_on_offer do
+    Listing
+    |> order_by([l], desc: l.id)
+    |> where([l], is_nil(l.purchased_by_user_id))
+    |> preload(:farmer)
+    |> Repo.all()
+  end
+
   def get_farmer_by_chat_id(chat_id) when is_integer(chat_id) do
     Repo.get_by(Mfarms.Marketplace.Farmer, chat_id: Integer.to_string(chat_id))
   end

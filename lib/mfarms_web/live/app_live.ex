@@ -6,7 +6,7 @@ defmodule MfarmsWeb.AppLive do
 
   @impl true
   def mount(_params, _session, socket) do
-    listings = Marketplace.list_listings()
+    listings = Marketplace.list_listings_on_offer()
     PubSub.subscribe(Mfarms.PubSub, "listings")
     {:ok, stream(socket, :listings, listings)}
   end
@@ -71,6 +71,12 @@ defmodule MfarmsWeb.AppLive do
       Mfarms.PubSub,
       "listings",
       {:listing_purchased, listing.id, listing.purchased_by_user_id}
+    )
+
+    Mfarms.Chat.ChatAdapter.send_message(
+      listing.farmer.chat_id,
+      listing.farmer.contact_type,
+      "Your listing ##{listing.id} has been purchased: #{listing.quantity}#{listing.unit} #{listing.name} for #{listing.price} #{listing.currency}. The buyer will contact you shortly."
     )
 
     {:noreply, socket}
