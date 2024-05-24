@@ -7,8 +7,23 @@ defmodule MfarmsWeb.AppLive do
   @impl true
   def mount(_params, _session, socket) do
     listings = Marketplace.list_listings_on_offer()
-    PubSub.subscribe(Mfarms.PubSub, "listings")
-    {:ok, stream(socket, :listings, listings)}
+
+    if(connected?(socket)) do
+      PubSub.subscribe(Mfarms.PubSub, "listings")
+    end
+
+    filters = %{
+      "term" => nil
+    }
+
+    socket =
+      socket
+      |> assign(:show_basket, false)
+      |> assign(:search_term, "")
+      |> assign(:filters_form, to_form(filters))
+      |> stream(:listings, listings)
+
+    {:ok, socket}
   end
 
   @impl true
@@ -40,6 +55,26 @@ defmodule MfarmsWeb.AppLive do
     </section>
     <div class="py-4 px-8 bg-white rounded shadow-sm">
       <.header>Marketplace Listings</.header>
+      <.form for={@filters_form} phx-change="search">
+        <div class="flex items-center gap-4">
+          <div class="flex-grow" phx-keydown="search">
+            <.input
+              class="w-64"
+              phx-debounce="500"
+              type="text"
+              placeholder="Search listings..."
+              field={@filters_form[:term]}
+            />
+          </div>
+          <div class="flex-none" phx-click="toggle-basket">
+            <%= if @show_basket do %>
+              <.icon name="hero-shopping-cart-solid" class="w-8 h-8 mt-2 bg-green-500" />
+            <% else %>
+              <.icon name="hero-shopping-cart-solid" class="w-8 h-8 mt-2" />
+            <% end %>
+          </div>
+        </div>
+      </.form>
       <.table id="listings" rows={@streams.listings}>
         <:col :let={{_id, listing}} label="Id"><%= listing.id %></:col>
         <:col :let={{_id, listing}} label="Name"><%= listing.name %></:col>
@@ -80,6 +115,45 @@ defmodule MfarmsWeb.AppLive do
     )
 
     {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("search", %{"term" => term}, socket) do
+    socket =
+      socket
+      |> assign(:search_term, term)
+      |> assign_listings
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("toggle-basket", _, socket) do
+    IO.inspect("#{socket.assigns.show_basket}")
+
+    socket =
+      socket
+      |> assign(:show_basket, !socket.assigns.show_basket)
+      |> assign_listings
+
+    {:noreply, socket}
+  end
+
+  defp assign_listings(socket) do
+    listings =
+      if socket.assigns.show_basket do
+        IO.inspect("Search here")
+
+        Marketplace.list_purchased_listings_by_user_id(
+          socket.assigns.current_user.id,
+          socket.assigns.search_term
+        )
+      else
+        IO.inspect("Search here 2")
+        Marketplace.list_listings_on_offer(socket.assigns.search_term)
+      end
+
+    stream(socket, :listings, listings, reset: true)
   end
 
   @impl true

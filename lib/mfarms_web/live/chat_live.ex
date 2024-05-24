@@ -51,7 +51,13 @@ defmodule MfarmsWeb.ChatLive do
         </div>
       </div>
       <.form for={@message_form} phx-submit="submit" phx-change="change">
-        <.input field={@message_form[:text]} name="text" type="textarea" placeholder="Type a message" />
+        <.input
+          field={@message_form[:text]}
+          name="text"
+          type="textarea"
+          placeholder="Type a message"
+          phx-debounce="400"
+        />
         <.button class="mt-2" type="submit">Send</.button>
       </.form>
     </div>

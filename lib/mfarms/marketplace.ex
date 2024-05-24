@@ -14,10 +14,25 @@ defmodule Mfarms.Marketplace do
     |> Repo.all()
   end
 
-  def list_listings_on_offer do
+  def list_listings_on_offer() do
     Listing
     |> order_by([l], desc: l.id)
     |> where([l], is_nil(l.purchased_by_user_id))
+    |> preload(:farmer)
+    |> Repo.all()
+  end
+
+  def list_listings_on_offer(term) do
+    Listing
+    |> order_by([l], desc: l.id)
+    |> where([l], is_nil(l.purchased_by_user_id) and ilike(l.name, ^"%#{term}%"))
+    |> preload(:farmer)
+    |> Repo.all()
+  end
+
+  def list_purchased_listings_by_user_id(user_id, term) do
+    Listing
+    |> where([l], l.purchased_by_user_id == ^user_id and ilike(l.name, ^"%#{term}%"))
     |> preload(:farmer)
     |> Repo.all()
   end
