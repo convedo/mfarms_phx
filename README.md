@@ -1,5 +1,12 @@
 # M'Farms
 
+## Hackathon
+
+This was created during a hackathon:
+
+- Demo video: https://streamable.com/df31oh
+- Demo: https://mfarms.fly.dev/
+
 ## Introduction
 
 M'Farms connects farmers with larger markets.
